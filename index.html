@@ -5,103 +5,112 @@
     <title>Be right back.</title>
     <link href="./font.css" rel="stylesheet" type="text/css">
     <style>
-    html, body {
-        height: 100%;
-    }
+        html, body {
+            height: 100%;
+        }
 
-    body {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        color: #9e9e9e;
-        display: table;
-        font-weight: 100;
-        font-family: 'Lato';
-    }
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            color: #9e9e9e;
+            display: table;
+            font-weight: 100;
+            font-family: 'Lato';
+        }
 
-    .container {
-        text-align: center;
-        display: table-cell;
-        vertical-align: middle;
-    }
+        .container {
+            text-align: center;
+            display: table-cell;
+            vertical-align: middle;
+        }
 
-    .content {
-        text-align: center;
-        display: inline-block;
-    }
+        .content {
+            text-align: center;
+            display: inline-block;
+        }
 
-    .title {
-        font-size: 72px;
-        margin-bottom: 40px;
-    }
+        .title {
+            font-size: 72px;
+            margin-bottom: 40px;
+        }
 
-    .sm {
-        font-size: 14px;
-    }
-</style>
+        .sm {
+            font-size: 14px;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <div class="content">
-            <div class="title">you are now added to<sup class="sm">firebase</sup></div>
-        </div>
+<div class="container">
+    <div class="content">
+        <div class="title" id="dateValue"></div>
     </div>
-    <script src="https://www.gstatic.com/firebasejs/4.2.0/firebase.js"></script>
-    <script>
-        // locals
-        var config;
-        var database;
+</div>
+<script src="https://www.gstatic.com/firebasejs/4.2.0/firebase.js"></script>
+<script>
+    // locals
+    var config;
+    var database;
+    var msg;
+    var dateValue;
 
-        // Initialize Firebase
-        config = {
-            apiKey: "AIzaSyAzKPDikLvTsRa92pamuq7Bc8GX7gHIs6U",
-            authDomain: "awais786327-224ae.firebaseapp.com",
-            databaseURL: "https://awais786327-224ae.firebaseio.com",
-            projectId: "awais786327-224ae",
-            storageBucket: "awais786327-224ae.appspot.com",
-            messagingSenderId: "845715439489"
-        };
+    dateValue = document.getElementById('dateValue');
 
-        // init
-        firebase.initializeApp(config);
+    // Initialize Firebase
+    config = {
+        apiKey: "AIzaSyAzKPDikLvTsRa92pamuq7Bc8GX7gHIs6U",
+        authDomain: "awais786327-224ae.firebaseapp.com",
+        databaseURL: "https://awais786327-224ae.firebaseio.com",
+        projectId: "awais786327-224ae",
+        storageBucket: "awais786327-224ae.appspot.com",
+        messagingSenderId: "845715439489"
+    };
 
+    // init
+    firebase.initializeApp(config);
 
-        // get a reference to database service
-        database = firebase.database();
+    // get a reference to database service
+    database = firebase.database();
 
+    // get a reference to database server to listen event for updated value
+    msg = firebase.database().ref('msg');
+    msg.on('value', updateChanges);
 
-        // functions
-        function visitedUser (id, date) {
-            database.ref(id).set({
-                date: date
-            });
-        }
-        function getDate () {
-            return new Date().toString()
-        }
-        function generateId () {
-            return '_' + Math.random().toString(36).substr(2, 9);
-        }
-        function getLocalStorageId () {
-            // Retrieve
-            return localStorage.getItem("visitedUserId");
-        }
-        function setLocalStorageId () {
-            localStorage.setItem("visitedUserId", generateId());
-        }
+    // functions
+    function visitedUser (id, date) {
+        database.ref(id).set({
+            date: date
+        });
+    }
+    function getDate () {
+        return new Date().toString()
+    }
+    function generateId () {
+        return '_' + Math.random().toString(36).substr(2, 9);
+    }
+    function getLocalStorageId () {
+        // Retrieve
+        return localStorage.getItem("visitedUserId");
+    }
+    function setLocalStorageId () {
+        localStorage.setItem("visitedUserId", generateId());
+    }
+    function updateChanges (snapshot) {
+        (snapshot.val() == undefined || snapshot.val() == null) ? dateValue.innerHTML = '...' : dateValue.innerHTML = snapshot.val();
+    }
 
-        if (getLocalStorageId () == null || getLocalStorageId () == undefined) {
-            // set id in local storage
-            setLocalStorageId ();
-            console.info('new user ', getLocalStorageId ());
-            // now add to firebase
-            visitedUser(getLocalStorageId () || 'mobile' + generateId (), getDate());
-        } else {
-            console.info('existing user ', getLocalStorageId ());
-            // just get id from local storage and proceed
-            visitedUser(getLocalStorageId () || 'mobile' + generateId (), getDate());
-        }
+    if (getLocalStorageId () == null || getLocalStorageId () == undefined) {
+        // set id in local storage
+        setLocalStorageId ();
+        console.info('new user ', getLocalStorageId ());
+        // now add to firebase
+        visitedUser(getLocalStorageId () || 'mobile' + generateId (), getDate());
+    } else {
+        console.info('existing user ', getLocalStorageId ());
+        // just get id from local storage and proceed
+        visitedUser(getLocalStorageId () || 'mobile' + generateId (), getDate());
+    }
 
-    </script>
+</script>
 </body>
 </html>
